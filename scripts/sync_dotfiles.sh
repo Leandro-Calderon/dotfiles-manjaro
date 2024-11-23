@@ -41,5 +41,5 @@ if [[ -n $(git status --porcelain) ]]; then
     echo "Sincronización completada."
 else
     # No hay cambios, abortar sincronización
-    echo "No hay cambios para sincronizar. Proceso abortado."
+    echo "No hay nuevos cambios para sincronizar con GitHub."
 fi
