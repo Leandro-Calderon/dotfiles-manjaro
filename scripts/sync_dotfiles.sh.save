@@ -32,14 +32,10 @@ echo "Carpeta scripts sincronizada (sin entorno virtual)."
 # Ir al directorio de dotfiles
 cd "$dotfiles_dir" || exit
 
-# Verificar si hay cambios antes de intentar sincronizar
-if [[ -n $(git status --porcelain) ]]; then
-    # Hay cambios, proceder con la sincronización
-    git add .
-    git commit -m "Actualización de archivos de configuración y scripts"
-    git push
-    echo "Sincronización completada."
-else
-    # No hay cambios, abortar sincronización
-    echo "No hay cambios para sincronizar. Proceso abortado."
-fi
+# Agregar y subir cambios a Git
+git add .
+git commit -m "Actualización de archivos de configuración y scripts"
+git push
+
+echo "Sincronización completada."
+
