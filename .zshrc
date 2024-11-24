@@ -68,13 +68,12 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 # ColorLS aliases
 alias ls='colorls --group-directories-first'
 alias la='colorls -a --group-directories-first'
-alias l='colorls -l --group-directories-first'
 alias ll='colorls -la --group-directories-first'
 
 # LSD aliases
 alias lt='lsd --tree'
 alias lnew='lsd -ltr'
-alias ld='lsd -ld */'
+alias l='lsd -ld */'
 alias lmod='lsd -lt'
 alias lsize='lsd -lS'
 alias ldepth='lsd --tree --depth'
