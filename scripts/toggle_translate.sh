@@ -1,41 +1,58 @@
-#!/bin/zsh
+#!/usr/bin/env bash
 
-# Obtén el texto copiado al portapapeles
+# Ruta al entorno virtual
+VENV_PATH=~/scripts/scripts/venv
+
+# Activar entorno virtual
+source "$VENV_PATH/bin/activate"
+
+# Obtén el texto del portapapeles
 TEXT=$(xclip -o)
 
-# Verifica si el portapapeles tiene contenido
 if [ -n "$TEXT" ]; then
-    # Detecta el idioma del texto y almacena la salida en una variable
-    DETECTION=$(trans -id "$TEXT")
+    # Detecta el idioma usando Python y langdetect
+    TEMP_FILE=$(mktemp)
+    echo "$TEXT" > "$TEMP_FILE"
 
-    # Extrae el idioma detectado de la salida
-    LANG_DETECTED=$(echo "$DETECTION" | grep -oP '(?<=Detected: )\w+')
+    LANG_DETECTED=$(python3 -c "
+from langdetect import detect
+try:
+    with open('$TEMP_FILE', 'r') as f:
+        text = f.read().strip()
+    lang = detect(text)
+    print(lang)
+except Exception as e:
+    print(f'error: {e}')
+")
 
-    echo "DETECTION OUTPUT: $DETECTION" >> ~/debug_translate.log
-    echo "LANG_DETECTED: $LANG_DETECTED" >> ~/debug_translate.log
+    # Elimina el archivo temporal
+    rm "$TEMP_FILE"
 
-    # Si no se detecta el idioma, muestra un error
-    if [ -z "$LANG_DETECTED" ]; then
-        yad --error --title="Error" --text="No se pudo detectar el idioma. Verifica tu conexión a internet."
-        exit 1
-    fi
+    # Depuración: muestra el idioma detectado
+    echo "Idioma detectado: $LANG_DETECTED"
 
-    # Define el idioma de destino basado en el idioma detectado
-    if [[ "$LANG_DETECTED" == "Spanish" ]]; then
-        TARGET_LANG="en"  # Si el idioma es español, traduce al inglés
-    elif [[ "$LANG_DETECTED" == "English" ]]; then
-        TARGET_LANG="es"  # Si el idioma es inglés, traduce al español
-    else
-        yad --error --title="Error" --text="Idioma no soportado: $LANG_DETECTED"
-        exit 1
-    fi
-
-    # Traduce al idioma de destino
-    RESULT=$(trans -b :"$TARGET_LANG" "$TEXT")
-
-    # Muestra el resultado en una ventana emergente
-    yad --info --title="Traducción" --text="$RESULT"
+    case "$LANG_DETECTED" in
+        "es")
+            TARGET_LANG="en"
+            ;;
+        "en")
+            TARGET_LANG="es"
+            ;;
+        *)
+            yad --error --title="Error" --text="Idioma no soportado o detectado: $LANG_DETECTED"
+            deactivate
+            exit 1
+            ;;
+    esac
+    
+    # Traduce el texto
+    TRANSLATION=$(trans -b :"$TARGET_LANG" "$TEXT")
+    
+    # Muestra la traducción
+    yad --info --title="Traducción" --text="$TRANSLATION"
 else
-    # Muestra un mensaje si no hay texto en el portapapeles
     yad --error --title="Error" --text="No hay texto en el portapapeles para traducir."
 fi
+
+# Desactivar entorno virtual
+deactivate
