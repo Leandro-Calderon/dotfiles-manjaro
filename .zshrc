@@ -62,18 +62,18 @@ export PATH="$PNPM_HOME:$PATH"
 
 # Source configurations
 source $ZSH/oh-my-zsh.sh
-source ~/powerlevel10k/powerlevel10k.zsh-theme
+source ~/.config/powerlevel10k/powerlevel10k.zsh-theme
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # ColorLS aliases
 alias ls='colorls --group-directories-first'
 alias la='colorls -a --group-directories-first'
-alias ll='colorls -la --group-directories-first'
+alias l='colorls -la --group-directories-first'
 
 # LSD aliases
 alias lt='lsd --tree'
 alias lnew='lsd -ltr'
-alias l='lsd -ld */'
+alias ll='lsd -ld */'
 alias lmod='lsd -lt'
 alias lsize='lsd -lS'
 alias ldepth='lsd --tree --depth'
