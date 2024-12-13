@@ -1,3 +1,4 @@
+syntax on
 set number
 set mouse=a
 syntax enable
@@ -7,7 +8,7 @@ set showmatch
 
 set expandtab
 set tabstop=4
-set shiftwidth=0
+set shiftwidth=4
 set softtabstop=0
 set autoindent
 set smarttab

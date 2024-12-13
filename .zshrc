@@ -79,10 +79,15 @@ alias lsize='lsd -lS'
 alias ldepth='lsd --tree --depth'
 
 # Git aliases
+
+alias ad='git add .'
+alias cm='git commit -m'
+alias ps='git push'
+alias st='git status'
+alias pl='git pull'
 alias gitl='git log --pretty=oneline'
 alias gitll="git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cD) %C(bold blue)<%an>%Creset' --abbrev-commit --all"
 alias gitlp='git log -p'
-alias gst='git status'
 alias gb='git branch'
 alias gc='git checkout'
 alias gp='git pull'
@@ -110,6 +115,7 @@ alias de='cd ~/Desktop'
 alias dw='cd ~/Downloads'
 alias doc='cd ~/Documents'
 alias im='cd ~/Pictures'
+alias pro='~/Projects'
 alias e='exit'
 alias v='nvim'
 alias cp='cp -iv'
@@ -135,4 +141,23 @@ alias update="python ~/scripts/update_system.py"
 alias monitor="source ~/scripts/scripts/venv/bin/activate && python ~/scripts/monitor_resources.py && deactivate"
 alias organize="source ~/scripts/scripts/venv/bin/activate && python ~/scripts/organize_downloads.py && deactivate"
 alias syncdotfiles="cd ~/Public/dotfiles-manjaro && git pull && git add . && git diff --cached --quiet || git commit -m \"Sync $(date '+%Y-%m-%d %H:%M:%S')\" && git push && cd -"
+alias ping='grc ping'
+alias traceroute='grc traceroute'
+alias netstat='grc netstat'
+alias ip='grc ip'
+alias ifconfig='grc ifconfig'
+alias dig='grc dig'
+alias nslookup='grc nslookup'
+alias host='grc host'
 
+alias gcc='grc gcc'
+alias make='grc make'
+alias curl='grc curl'
+alias wget='grc wget'
+alias journalctl='grc journalctl'
+alias dmesg='grc dmesg'
+alias tail='grc tail'
+alias head='grc head'
+
+
+eval $(thefuck --alias)
