@@ -11,42 +11,41 @@ files=(
     "$HOME/.config/fastfetch/config.jsonc"
 )
 
-# Copiar archivos reales al repositorio, preservando la estructura de directorios
-echo "Iniciando la copia de archivos..."
+# Copiar archivos reales al repositorio solo si han cambiado
+echo "Verificando y copiando archivos si es necesario..."
 for file in "${files[@]}"; do
+    target_file="$dotfiles_dir/$(basename $file)"
     if [ -f "$file" ]; then
-        dest="$dotfiles_dir${file#$HOME}"  # Preservar la estructura relativa
-        mkdir -p "$(dirname "$dest")"     # Crear directorio si no existe
-        cp "$file" "$dest"               # Copiar archivo
-        echo "Copiado: $file -> $dest"
+        # Comprobar si los archivos son diferentes
+        if ! cmp -s "$file" "$target_file"; then
+            cp "$file" "$target_file"
+            echo "Archivo actualizado: $file"
+        else
+            echo "Sin cambios: $file"
+        fi
     else
         echo "Advertencia: El archivo $file no existe."
     fi
 done
 
-# Sincronizar la carpeta scripts, excluyendo subcarpetas específicas
+# Sincronizar la carpeta scripts, excluyendo la subcarpeta 'scripts'
 src_scripts_dir="$HOME/scripts"
 dest_scripts_dir="$dotfiles_dir/scripts"
 
 echo "Sincronizando la carpeta de scripts..."
-rsync -av --exclude 'scripts/' "$src_scripts_dir/" "$dest_scripts_dir/"
-echo "Carpeta scripts sincronizada."
+find "$src_scripts_dir" -maxdepth 1 -mindepth 1 -not -path "$src_scripts_dir/scripts" -exec cp -ru {} "$dest_scripts_dir/" \;
+echo "Carpeta scripts sincronizada (sin entorno virtual)."
 
 # Ir al directorio de dotfiles
-echo "Cambiando al directorio de dotfiles: $dotfiles_dir"
-cd "$dotfiles_dir" || { echo "Error: No se pudo acceder al directorio de dotfiles."; exit 1; }
+cd "$dotfiles_dir" || exit
 
-# Verificar cambios en Git
+# Agregar y subir cambios a Git
 if [[ -n $(git status --porcelain) ]]; then
-    echo "Se detectaron cambios. Subiendo a GitHub..."
     git add .
     git commit -m "Actualización de archivos de configuración y scripts"
-    if git push; then
-        echo "Sincronización completada exitosamente."
-    else
-        echo "Error al realizar el push a GitHub."
-    fi
+    git push
+    echo "Sincronización completada."
 else
-    echo "No hay nuevos cambios para sincronizar."
+    echo "No hay cambios para sincronizar con GitHub."
 fi
 
