@@ -1,8 +1,19 @@
-# Enable Powerlevel10k instant prompt
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
+typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
+
+# Path to your Oh My Zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+# Set name of the theme to load --- if set to "random", it will
+# load a random theme each time Oh My Zsh is loaded, in which case,
+# to know which specific one was loaded, run: echo $RANDOM_THEME
+# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
 
 # Core Settings
 export EDITOR='nvim'
@@ -15,20 +26,15 @@ SAVEHIST=100000
 HISTFILE=~/.zsh_history
 setopt HIST_IGNORE_ALL_DUPS HIST_SAVE_NO_DUPS HIST_REDUCE_BLANKS HIST_VERIFY SHARE_HISTORY EXTENDED_HISTORY
 
-# Oh My Zsh Configuration
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="agnoster"
 
-# Plugins
 plugins=(
-    zsh-autosuggestions
-    zsh-syntax-highlighting
+    git
+    sudo  
     fzf
     colored-man-pages
     history
     history-substring-search
     dirhistory
-    pj
     pip
     pipenv
     python
@@ -38,42 +44,41 @@ plugins=(
     vim-interaction
 )
 
-# Configuración del PATH
-export PATH="$HOME/scripts:$PATH"
-
-export PATH="/usr/local/bin:/usr/bin:$HOME/.local/bin:$HOME/.local/share/gem/ruby/3.2.0/bin:$PATH"
-
-# FZF Configuration
-export FZF_DEFAULT_OPTS="--color=16 --border --preview 'cat {}'"
-export FZF_DEFAULT_COMMAND='fd --type f'
-
-#NVM configuration with lazy loading for faster shell startup
-export NVM_DIR="$HOME/.nvm"
-# Lazy load nvm
-nvm() {
-    unset -f nvm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm "$@"
-}
-
-# PNPM Configuration
-export PNPM_HOME="$HOME/.local/share/pnpm"
-export PATH="$PNPM_HOME:$PATH"
-
-# Source configurations
 source $ZSH/oh-my-zsh.sh
-source ~/.config/powerlevel10k/powerlevel10k.zsh-theme
+
+export PATH=$PATH:/usr/bin/google-chrome-stable
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# ColorLS aliases
-alias ls='colorls --group-directories-first'
-alias la='colorls -a --group-directories-first'
-alias l='colorls -la --group-directories-first'
+source $(dirname $(gem which colorls))/tab_complete.sh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Funciones
+
+f() {
+  fzf --preview="bat --style=numbers,changes --color=always {} || echo {}" \
+      --bind shift-up:preview-page-up,shift-down:preview-page-down \
+      --color=fg:#ffffff,bg:#1e1e1e,hl:#ffcc00,fg+:#000000,bg+:#ffffcc,hl+:#ff9900,info:#00ffff,pointer:#ff0000,marker:#00ff00,spinner:#ff00ff,header:#00ffcc | while read -r file; do
+    case "$file" in
+      *.md|*.docx|*.odt|*.txt|*.rtf|*.xlsx|*.ods) kate "$file" ;;
+      *.pdf) evince "$file" 2>/dev/null ;;
+      *.jpg|*.png|*.jpeg|*.gif|*.raw|*.cr2|*.nef) gwenview "$file" 2>/dev/null ;;
+      *.epub) foliate "$file" ;;
+      *) nvim "$file" ;;
+    esac
+  done
+}
 
 # LSD aliases
+
+alias ls='lsd --group-directories-first'
+alias la='lsd -a --group-directories-first'
+alias l='lsd -la --group-directories-first'
 alias lt='lsd --tree'
 alias lnew='lsd -ltr'
-alias ll='lsd -ld */'
+alias ld='lsd -ld */'
 alias lmod='lsd -lt'
 alias lsize='lsd -lS'
 alias ldepth='lsd --tree --depth'
@@ -124,23 +129,12 @@ alias rm='rm -iv'
 alias rmr='rm -Ir'
 alias mkdir='mkdir -pv'
 
-f() {
-  fzf --preview="bat --theme=gruvbox-dark --color=always {} || echo {}" | while read -r file; do
-    case "$file" in
-      *.md|*.docx|*.odt|*.txt|*.rtf|*.xlsx|*.ods) kate "$file" ;;
-      *.pdf) evince "$file" 2>/dev/null ;;
-      *.jpg|*.png|*.jpeg|*.gif|*.raw|*.cr2|*.nef) gwenview "$file" 2>/dev/null ;;
-      *.epub) foliate "$file" ;;
-
-      *) nvim "$file" ;;
-    esac
-  done
-}
-
 alias update="python ~/scripts/update_system.py"
 alias monitor="source ~/scripts/scripts/venv/bin/activate && python ~/scripts/monitor_resources.py && deactivate"
 alias organize="source ~/scripts/scripts/venv/bin/activate && python ~/scripts/organize_downloads.py && deactivate"
-alias syncdotfiles="cd ~/Public/dotfiles-manjaro && git pull && git add . && git diff --cached --quiet || git commit -m \"Sync $(date '+%Y-%m-%d %H:%M:%S')\" && git push && cd -"
+alias syncdotfiles="cd ~/Public/dotfiles-manjaro && git pull && git add . && git diff --cached --quiet || git commit -m \"Sync $(date '+%Y-%m-%d %H:%M:%S')
+\" && git push && cd -"
+
 alias ping='grc ping'
 alias traceroute='grc traceroute'
 alias netstat='grc netstat'
@@ -158,6 +152,14 @@ alias journalctl='grc journalctl'
 alias dmesg='grc dmesg'
 alias tail='grc tail'
 alias head='grc head'
+# pnpm
+export PNPM_HOME="/home/lean/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
 
-
-eval $(thefuck --alias)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
