@@ -8,6 +8,7 @@ files=(
     "$HOME/.zshrc"
     "$HOME/.config/nvim/init.vim"
     "$HOME/.config/kitty/kitty.conf"
+    "$HOME/.config/fastfetch/config.jsonc"  # Nuevo archivo añadido
 )
 
 # Copiar archivos reales al repositorio
@@ -25,9 +26,12 @@ src_scripts_dir="$HOME/scripts"
 dest_scripts_dir="$dotfiles_dir/scripts"
 
 # Excluir la subcarpeta 'scripts' y copiar solo el contenido necesario
-find "$src_scripts_dir" -maxdepth 1 -mindepth 1 -not -path "$src_scripts_dir/scripts" -exec cp -r {} "$dest_scripts_dir/" \;
-
-echo "Carpeta scripts sincronizada (sin entorno virtual)."
+if [ -d "$src_scripts_dir" ]; then
+    find "$src_scripts_dir" -maxdepth 1 -mindepth 1 -not -path "$src_scripts_dir/scripts" -exec cp -r {} "$dest_scripts_dir/" \;
+    echo "Carpeta scripts sincronizada (sin entorno virtual)."
+else
+    echo "Advertencia: La carpeta $src_scripts_dir no existe."
+fi
 
 # Ir al directorio de dotfiles
 cd "$dotfiles_dir" || exit
@@ -36,7 +40,7 @@ cd "$dotfiles_dir" || exit
 if [[ -n $(git status --porcelain) ]]; then
     # Hay cambios, proceder con la sincronización
     git add .
-    git commit -m "Actualización de archivos de configuración y scripts"
+    git commit -m "Actualización de archivos de configuración y scripts: $(date '+%Y-%m-%d %H:%M:%S')"
     git push
     echo "Sincronización completada."
 else
