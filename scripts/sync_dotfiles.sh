@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # Directorio donde están los dotfiles
 dotfiles_dir=~/Public/dotfiles-manjaro
@@ -11,13 +11,15 @@ files=(
     "$HOME/.config/fastfetch/config.jsonc"
 )
 
-# Crear el directorio de dotfiles si no existe
-mkdir -p "$dotfiles_dir"
+# Función para verificar si hay cambios
+has_changes() {
+    [[ -n $(git -C "$dotfiles_dir" status --porcelain) ]]
+}
 
 # Copiar archivos reales al repositorio solo si han cambiado
 echo "Verificando y copiando archivos si es necesario..."
 for file in "${files[@]}"; do
-    target_file="$dotfiles_dir/$(basename $file)"
+    target_file="$dotfiles_dir/$(basename "$file")"
     if [ -f "$file" ]; then
         # Comprobar si los archivos son diferentes
         if ! cmp -s "$file" "$target_file"; then
@@ -44,7 +46,8 @@ echo "Carpeta scripts sincronizada (sin entorno virtual)."
 cd "$dotfiles_dir" || { echo "Error: No se pudo cambiar al directorio $dotfiles_dir"; exit 1; }
 
 # Agregar y subir cambios a Git
-if [[ -n $(git status --porcelain) ]]; then
+if has_changes; then
+    echo "Detectados cambios en los dotfiles."
     git add .
     git commit -m "Actualización de archivos de configuración y scripts"
     if git push; then
