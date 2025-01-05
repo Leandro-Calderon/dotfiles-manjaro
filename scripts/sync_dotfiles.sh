@@ -18,9 +18,12 @@ mkdir -p "$dotfiles_dir"
 echo "Verificando y copiando archivos si es necesario..."
 for file in "${files[@]}"; do
     target_file="$dotfiles_dir/$(basename "$file")"
+    echo "Verificando archivo: $file"
     if [ -f "$file" ]; then
+        echo "El archivo existe: $file"
         # Comprobar si los archivos son diferentes
         if ! cmp -s "$file" "$target_file"; then
+            echo "El archivo ha cambiado: $file"
             cp -v "$file" "$target_file"
             echo "Archivo actualizado: $file"
         else
