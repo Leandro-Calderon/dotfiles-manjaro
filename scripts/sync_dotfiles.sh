@@ -11,6 +11,9 @@ files=(
     "$HOME/.config/fastfetch/config.jsonc"
 )
 
+# Crear el directorio de dotfiles si no existe
+mkdir -p "$dotfiles_dir"
+
 # Copiar archivos reales al repositorio solo si han cambiado
 echo "Verificando y copiando archivos si es necesario..."
 for file in "${files[@]}"; do
@@ -18,7 +21,7 @@ for file in "${files[@]}"; do
     if [ -f "$file" ]; then
         # Comprobar si los archivos son diferentes
         if ! cmp -s "$file" "$target_file"; then
-            cp "$file" "$target_file"
+            cp -v "$file" "$target_file"
             echo "Archivo actualizado: $file"
         else
             echo "Sin cambios: $file"
@@ -33,19 +36,23 @@ src_scripts_dir="$HOME/scripts"
 dest_scripts_dir="$dotfiles_dir/scripts"
 
 echo "Sincronizando la carpeta de scripts..."
-find "$src_scripts_dir" -maxdepth 1 -mindepth 1 -not -path "$src_scripts_dir/scripts" -exec cp -ru {} "$dest_scripts_dir/" \;
+mkdir -p "$dest_scripts_dir"
+rsync -av --exclude='scripts/' "$src_scripts_dir/" "$dest_scripts_dir/"
 echo "Carpeta scripts sincronizada (sin entorno virtual)."
 
 # Ir al directorio de dotfiles
-cd "$dotfiles_dir" || exit
+cd "$dotfiles_dir" || { echo "Error: No se pudo cambiar al directorio $dotfiles_dir"; exit 1; }
 
 # Agregar y subir cambios a Git
 if [[ -n $(git status --porcelain) ]]; then
     git add .
     git commit -m "Actualización de archivos de configuración y scripts"
-    git push
-    echo "Sincronización completada."
+    if git push; then
+        echo "Sincronización completada."
+    else
+        echo "Error: No se pudo subir los cambios a GitHub."
+        exit 1
+    fi
 else
     echo "No hay cambios para sincronizar con GitHub."
 fi
-
