@@ -1,76 +1,56 @@
-#!/usr/bin/env python3
+#!/bin/bash
 
-import subprocess
-import sys
-import logging
+# Colores y símbolos
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+CHECK="✅"
+GEAR="⚙️"
+PACKAGE="📦"
+FLATPAK="📦"
+AUR="🛠️"
+CLEAN="🧹"
+REBOOT="🔄"
 
-# Configurar logging
-logging.basicConfig(
-    filename="update_system.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-)
+# Función para mostrar encabezados
+print_header() {
+    echo -e "\n${BLUE}${GEAR} $1 ${NC}"
+}
 
-def run_command(cmd):
-    """Ejecuta un comando y maneja errores."""
-    logging.info(f"Ejecutando: {cmd}")
-    print(f"Ejecutando: {cmd}")
-    try:
-        subprocess.run(cmd, shell=True, check=True)
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Error al ejecutar '{cmd}': {e}")
-        print(f"Error: {e}")
-        sys.exit(1)
+# Función para mostrar éxito
+print_success() {
+    echo -e "${GREEN}${CHECK} $1 ${NC}"
+}
 
-def is_installed(package):
-    """Verifica si un paquete está instalado."""
-    try:
-        subprocess.run(f"which {package}", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return True
-    except subprocess.CalledProcessError:
-        return False
+# Inicio del script
+clear
+echo -e "${BLUE}================================================"
+echo -e " ${PACKAGE} Actualización Completa del Sistema ${PACKAGE} "
+echo -e "================================================${NC}"
 
-def has_orphans():
-    """Verifica si hay paquetes huérfanos."""
-    try:
-        result = subprocess.run("pacman -Qdtq", shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return bool(result.stdout.strip())
-    except subprocess.CalledProcessError:
-        return False
+# 1. Actualizar repositorios oficiales (pacman)
+print_header "1. Actualizando paquetes oficiales (pacman)..."
+sudo pacman -Syu --noconfirm && print_success "Pacman actualizado" || echo -e "${RED}Error en actualización de pacman${NC}"
 
-def update_system():
-    """Actualiza el sistema."""
-    # Actualizar paquetes oficiales
-    run_command("sudo pacman -Syu --noconfirm")
+# 2. Actualizar paquetes AUR (yay)
+print_header "2. Actualizando paquetes AUR (yay)..."
+yay -Syu --noconfirm && print_success "AUR actualizado" || echo -e "${RED}Error en actualización de AUR${NC}"
 
-    # Actualizar paquetes AUR (si yay o paru están instalados)
-    aur_helpers = ["yay", "paru"]
-    for helper in aur_helpers:
-        if is_installed(helper):
-            run_command(f"{helper} -Syu --noconfirm")
-            break
-    else:
-        logging.warning("No se encontró ningún ayudante de AUR (yay/paru).")
-        print("Advertencia: No se encontró ningún ayudante de AUR (yay/paru).")
+# 3. Actualizar Flatpak
+print_header "3. Actualizando aplicaciones Flatpak..."
+flatpak update -y && print_success "Flatpak actualizado" || echo -e "${RED}Error en actualización de Flatpak${NC}"
 
-    # Limpiar caché de paquetes
-    run_command("sudo pacman -Sc --noconfirm")
+# 4. Limpieza opcional
+print_header "4. Limpieza de caché (opcional)"
+echo -ne "${YELLOW}¿Limpiar paquetes sobrantes? [s/N]: ${NC}"
+read -r clean
+if [[ $clean =~ [Ss] ]]; then
+    sudo pacman -Sc --noconfirm && print_success "Limpieza completada"
+fi
 
-    # Eliminar paquetes huérfanos (opcional)
-    if input("¿Deseas eliminar paquetes huérfanos? (s/n): ").lower() == "s":
-        if has_orphans():
-            run_command("sudo pacman -Rns $(pacman -Qdtq) --noconfirm")
-        else:
-            print("No hay paquetes huérfanos para eliminar.")
-
-    # Limpiar caché de AUR (si yay o paru están instalados)
-    for helper in aur_helpers:
-        if is_installed(helper):
-            if input(f"¿Deseas limpiar la caché de {helper}? (s/n): ").lower() == "s":
-                run_command(f"{helper} -Sc --noconfirm")
-            break
-
-if __name__ == "__main__":
-    print("Iniciando actualización del sistema...")
-    update_system()
-    print("Actualización completada.")
+# Finalización
+echo -e "\n${GREEN}${CHECK} ${CHECK} ${CHECK} Actualización completada ${CHECK} ${CHECK} ${CHECK}${NC}"
+echo -e "\n${REBOOT} Si actualizaste el kernel o controladores, considera reiniciar:"
+echo -e "   ${YELLOW}sudo reboot${NC}"
