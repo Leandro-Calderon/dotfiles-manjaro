@@ -7,7 +7,7 @@ dotfiles_dir=~/Public/dotfiles-manjaro
 files=(
     "$HOME/.zshrc"
     "$HOME/.config/nvim/init.vim"
-    "$HOME/.config/kitty/kitty.conf"
+    "$HOME/.config/ghostty/config"
     "$HOME/.config/fastfetch/config.jsonc"
 )
 
