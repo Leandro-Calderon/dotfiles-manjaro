@@ -1,10 +1,10 @@
 #!/bin/bash
-set -e  # Detiene el script ante cualquier error
+set -e  # Detener el script ante cualquier error
 
-# Directorio base para dotfiles (donde se guardarán)
+# Directorio base para dotfiles
 dotfiles_repo=~/Public/dotfiles-manjaro
 
-# Archivos/directorios a respaldar (rutas relativas a $HOME)
+# Archivos/directorios a respaldar
 config_files=(
     ".zshrc"
     ".config/nvim/init.vim"
@@ -20,21 +20,26 @@ sync_file() {
     local source_file="$HOME/$1"
     local target_file="$dotfiles_repo/$1"
     
-    # Verificar si el archivo fuente existe
-    if [ ! -f "$source_file" ]; then
-        echo "  ⚠️  Archivo fuente no encontrado: $source_file"
+    # Verificar si el archivo/directorio fuente existe
+    if [ ! -e "$source_file" ]; then
+        echo "  ⚠️  No encontrado: $source_file"
         return 1
     fi
 
     # Crear directorio padre en el destino si no existe
     mkdir -p "$(dirname "$target_file")"
 
-    # Copiar solo si el archivo es nuevo o ha cambiado
-    if ! cmp -s "$source_file" "$target_file"; then
-        cp -v "$source_file" "$target_file"
-        echo "  ✅ Copiado/Actualizado: $1"
-    else
-        echo "  🔄 Sin cambios: $1"
+    # Sincronizar si es archivo o directorio
+    if [ -f "$source_file" ]; then
+        if ! cmp -s "$source_file" "$target_file"; then
+            cp -v "$source_file" "$target_file"
+            echo "  ✅ Copiado/Actualizado: $1"
+        else
+            echo "  🔄 Sin cambios: $1"
+        fi
+    elif [ -d "$source_file" ]; then
+        rsync -avh --delete "$source_file/" "$target_file/"
+        echo "  ✅ Directorio sincronizado: $1"
     fi
 }
 
@@ -45,28 +50,35 @@ for file in "${config_files[@]}"; do
     sync_file "$file"
 done
 
-# Sincronizar scripts (excluyendo venv y .git)
-echo "\n🔄 Copiando scripts..."
-rsync -avh --delete \
-    --exclude='venv/' \
-    --exclude='.git/' \
-    "$HOME/scripts/" \
-    "$dotfiles_repo/scripts/"
+# Sincronizar scripts (si existen)
+if [ -d "$HOME/scripts" ]; then
+    echo -e "\n🔄 Copiando scripts..."
+    rsync -avh --delete \
+        --exclude='venv/' \
+        --exclude='.git/' \
+        "$HOME/scripts/" \
+        "$dotfiles_repo/scripts/"
+else
+    echo "  ⚠️  No se encontró ~/scripts, omitiendo..."
+fi
 
 # Subir cambios a GitHub
-echo "\n📌 Sincronizando con GitHub..."
+echo -e "\n📌 Sincronizando con GitHub..."
 cd "$dotfiles_repo" || exit 1
 
-# Configurar usuario de Git (¡personaliza estos datos!)
-git config --global user.name "Tu Nombre"
-git config --global user.email "tu@email.com"
+# Evitar configuración global si ya existe
+if ! git config --global --get user.name >/dev/null; then
+    git config --global user.name "Tu Nombre"
+    git config --global user.email "tu@email.com"
+fi
 
-# Hacer commit y push
-git add .
-if git commit -m "Sync: $(date +'%d-%m-%Y %H:%M')"; then
+# Hacer commit y push si hay cambios
+if [ -n "$(git status --porcelain)" ]; then
+    git add .
+    git commit -m "Sync: $(date +'%d-%m-%Y %H:%M')"
     git push origin main && echo "🚀 ¡Todo sincronizado con GitHub!"
 else
     echo "🟢 No hay cambios nuevos para subir."
 fi
 
-echo "\n✅ ¡Proceso completado!"
+echo -e "\n✅ ¡Proceso completado!"
