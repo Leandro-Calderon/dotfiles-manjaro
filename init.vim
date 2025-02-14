@@ -1,1 +1,0 @@
-/home/lean/.config/nvim/init.vim
