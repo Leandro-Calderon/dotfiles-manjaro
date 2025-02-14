@@ -29,18 +29,9 @@ sync_file() {
     # Crear directorio padre en el destino si no existe
     mkdir -p "$(dirname "$target_file")"
 
-    # Sincronizar si es archivo o directorio
-    if [ -f "$source_file" ]; then
-        if ! cmp -s "$source_file" "$target_file"; then
-            cp -v "$source_file" "$target_file"
-            echo "  ✅ Copiado/Actualizado: $1"
-        else
-            echo "  🔄 Sin cambios: $1"
-        fi
-    elif [ -d "$source_file" ]; then
-        rsync -avh --delete "$source_file/" "$target_file/"
-        echo "  ✅ Directorio sincronizado: $1"
-    fi
+    # Copiar el archivo (forzando reemplazo para evitar enlaces simbólicos)
+    cp -v --remove-destination "$source_file" "$target_file"
+    echo "  ✅ Copiado/Actualizado: $1"
 }
 
 # Sincronizar archivos de configuración
