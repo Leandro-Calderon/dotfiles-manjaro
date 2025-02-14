@@ -42,15 +42,7 @@ yay -Syu --noconfirm && print_success "AUR actualizado" || echo -e "${RED}Error 
 print_header "3. Actualizando aplicaciones Flatpak..."
 flatpak update -y && print_success "Flatpak actualizado" || echo -e "${RED}Error en actualización de Flatpak${NC}"
 
-# 4. Limpieza opcional
-print_header "4. Limpieza de caché (opcional)"
-echo -ne "${YELLOW}¿Limpiar paquetes sobrantes? [s/N]: ${NC}"
-read -r clean
-if [[ $clean =~ [Ss] ]]; then
-    sudo pacman -Sc --noconfirm && print_success "Limpieza completada"
-fi
+
 
 # Finalización
 echo -e "\n${GREEN}${CHECK} ${CHECK} ${CHECK} Actualización completada ${CHECK} ${CHECK} ${CHECK}${NC}"
-echo -e "\n${REBOOT} Si actualizaste el kernel o controladores, considera reiniciar:"
-echo -e "   ${YELLOW}sudo reboot${NC}"

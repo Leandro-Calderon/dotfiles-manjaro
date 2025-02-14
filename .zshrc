@@ -1,14 +1,17 @@
-# Powerlevel10k Instant Prompt
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME="agnoster"
+
+source $ZSH/oh-my-zsh.sh
+
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
 
-# Path to Oh My Zsh installation
-export ZSH="$HOME/.oh-my-zsh"
+if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
+  source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
+fi
 
-# Theme
-ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Core Settings
 export EDITOR='nvim'
@@ -25,23 +28,13 @@ setopt HIST_IGNORE_ALL_DUPS HIST_SAVE_NO_DUPS HIST_REDUCE_BLANKS HIST_VERIFY SHA
 
 # Plugins
 plugins=(
-    zsh-syntax-highlighting
-    zsh-autosuggestions
-    git
     sudo
     direnv
     nvm
-    docker
-    docker-compose
-)
-
-source $ZSH/oh-my-zsh.sh
+    )
 
 # Custom PATH
 export PATH=$PATH:/usr/bin/google-chrome-stable
-
-# Powerlevel10k Configuration
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # LSD Aliases
 alias ls='lsd --group-directories-first'
@@ -86,7 +79,6 @@ alias tsn='ts-node'
 alias tsc='tsc --watch'
 
 # General Aliases
-alias icat="kitten icat"
 alias de='cd ~/Desktop'
 alias dw='cd ~/Downloads'
 alias doc='cd ~/Documents'
@@ -181,3 +173,12 @@ f() {
     esac
   done
 }
+
+export PATH="$PATH:/home/lean/Public/dotfiles-manjaro/scripts"
+source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+source /home/lean/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
