@@ -13,7 +13,6 @@ font-size = 12
 confirm-close-surface = false
 quick-terminal-animation-duration = 0.10
 window-decoration = true
-gtk-adwaita = true
 shell-integration-features = cursor,title
 clipboard-read = allow
 clipboard-write = allow
@@ -22,7 +21,7 @@ window-padding-balance = true
 background-opacity = 0.95
 background-blur-radius =25
 window-step-resize = false
-window-height = 20
+window-height = 30
 window-width = 100
 window-padding-balance = true
 window-padding-y = 4,0
@@ -30,4 +29,3 @@ window-padding-x = 2,2
 mouse-hide-while-typing
 window-theme = system
 quick-terminal-position = center
-gtk-titlebar
