@@ -1,24 +1,49 @@
-export ZSH="$HOME/.oh-my-zsh"
-
-ZSH_THEME="agnoster"
-
-source $ZSH/oh-my-zsh.sh
-
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-if [[ -n $GHOSTTY_RESOURCES_DIR ]]; then
-  source "$GHOSTTY_RESOURCES_DIR"/shell-integration/zsh/ghostty-integration
-fi
-
+#zmodload zsh/zprof
 
 # Core Settings
 export EDITOR='nvim'
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
-
 export VIMRUNTIME=/usr/share/nvim/runtime
+export ZSH="$HOME/.oh-my-zsh"
+export PATH="$PATH:/home/lean/Public/dotfiles-manjaro/scripts"
+
+# Source oh-my-zsh
+source $ZSH/oh-my-zsh.sh
+
+# Set name of the theme to load.
+ZSH_THEME="agnoster"
+
+# Plugins to load.
+plugins=(
+    sudo
+    zoxide
+    zsh-history-substring-search
+)
+
+# zoxide
+eval "$(zoxide init zsh)"
+
+# Load Powerlevel10k configuration
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Powerlevel10k theme
+source ~/Tools/powerlevel10k/powerlevel10k.zsh-theme
+
+# Instant Prompt
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Source oh-my-zsh
+#source $ZSH/oh-my-zsh.sh
+
+CASE_SENSITIVE="true"
+HYPHEN_INSENSITIVE="true"
+DISABLE_AUTO_UPDATE="true"
+ENABLE_CORRECTION="true"
+COMPLETION_WAITING_DOTS="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # History Configuration
 HISTSIZE=100000
@@ -26,20 +51,17 @@ SAVEHIST=100000
 HISTFILE=~/.zsh_history
 setopt HIST_IGNORE_ALL_DUPS HIST_SAVE_NO_DUPS HIST_REDUCE_BLANKS HIST_VERIFY SHARE_HISTORY EXTENDED_HISTORY
 
-# Plugins
-plugins=(
-    sudo
-    direnv
-    nvm
-    )
+# Colores para el resaltado de búsqueda
+export HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='fg=green,bold'
+export HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='fg=red,bold'
+export HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='i'
 
-# Custom PATH
-export PATH=$PATH:/usr/bin/google-chrome-stable
+# Custom Aliases
 
 # LSD Aliases
 alias ls='lsd --group-directories-first'
 alias la='lsd -a --group-directories-first'
-alias l='lsd -la --group-directories-first'
+alias l='lsd -ll --group-directories-first'
 alias lt='lsd --tree'
 alias lnew='lsd -ltr'
 alias ld='lsd -ld */'
@@ -125,29 +147,10 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-
-# direnv
-eval "$(direnv hook zsh)"
-
-# zoxide
-eval "$(zoxide init zsh)"
+#the Fuck
+eval $(thefuck --alias)
 
 # Functions
-
-# Auto-activate virtual environment
-function auto_activate_venv() {
-    if [ -f "./venv/bin/activate" ]; then
-        source ./venv/bin/activate
-    elif [ -f "./.venv/bin/activate" ]; then
-        source ./.venv/bin/activate
-    fi
-}
-export PROMPT_COMMAND="auto_activate_venv; $PROMPT_COMMAND"
 
 # Yazi function
 function y() {
@@ -160,10 +163,16 @@ function y() {
 }
 
 # fzf function
+
 f() {
-  fzf --preview="bat --style=numbers,changes --color=always {} || echo {}" \
-      --bind shift-up:preview-page-up,shift-down:preview-page-down \
-      --color=fg:#ffffff,bg:#1e1e1e,hl:#ffcc00,fg+:#000000,bg+:#ffffcc,hl+:#ff9900,info:#00ffff,pointer:#ff0000,marker:#00ff00,spinner:#ff00ff,header:#00ffcc | while read -r file; do
+  fzf --preview '
+    case "{}" in
+      *.pdf) evince --preview {} ;;
+      *.jpg|*.png|*.jpeg|*.gif|*.raw|*.cr2|*.nef) gwenview --preview {} ;;
+      *) bat --style=numbers,changes --color=always {} || echo {} ;;
+    esac
+  ' --bind shift-up:preview-page-up,shift-down:preview-page-down \
+    --color=fg:#ffffff,bg:#1e1e1e,hl:#ffcc00,fg+:#000000,bg+:#ffffcc,hl+:#ff9900,info:#00ffff,pointer:#ff0000,marker:#00ff00,spinner:#ff00ff,header:#00ffcc | while read -r file; do
     case "$file" in
       *.md|*.docx|*.odt|*.txt|*.rtf|*.xlsx|*.ods) kate "$file" ;;
       *.pdf) evince "$file" 2>/dev/null ;;
@@ -174,11 +183,12 @@ f() {
   done
 }
 
-export PATH="$PATH:/home/lean/Public/dotfiles-manjaro/scripts"
-source ~/powerlevel10k/powerlevel10k.zsh-theme
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-source /home/lean/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+# Load zsh-syntax-highlighting and zsh-autosuggestions
+source /home/lean/Tools/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#256182"
+
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+
+#zprof

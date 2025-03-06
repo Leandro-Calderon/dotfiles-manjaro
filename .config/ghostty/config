@@ -1,0 +1,39 @@
+# Shell Integration
+shell-integration = zsh
+shell-integration-features = sudo,cursor,title
+
+# Theme and Appearance
+theme = CyberpunkScarletProtocol
+background = 282c34
+foreground = ffffff
+background-opacity = 0.96
+split-divider-color = #66cccc
+window-theme = system
+
+# Font Settings
+font-family = "MesloLGS"
+font-feature = -liga
+font-size = 12
+
+# Window and Layout
+window-padding-x = 4,0
+window-padding-y = 4,0
+window-padding-balance = true
+window-step-resize = true
+window-height = 30
+window-width = 100
+quick-terminal-position = center
+resize-overlay = always
+
+# Keybindings
+keybind = ctrl+z=close_surface
+keybind = ctrl+d=new_split:right
+
+# Behavior and Features
+confirm-close-surface = false
+quick-terminal-animation-duration = 0.10
+mouse-hide-while-typing
+
+# Clipboard
+clipboard-read = allow
+clipboard-write = allow
