@@ -11,7 +11,7 @@ split-divider-color = #66cccc
 window-theme = system
 
 # Font Settings
-font-family = "MesloLGS"
+font-family = "Maple Mono NF CN"
 font-feature = -liga
 font-size = 12
 

@@ -1,5 +1,12 @@
 #zmodload zsh/zprof
 
+# Plugins to load.
+plugins=(
+    sudo
+    zoxide
+    zsh-history-substring-search
+)
+
 # Core Settings
 export EDITOR='nvim'
 export LANG=en_US.UTF-8
@@ -13,13 +20,6 @@ source $ZSH/oh-my-zsh.sh
 
 # Set name of the theme to load.
 ZSH_THEME="agnoster"
-
-# Plugins to load.
-plugins=(
-    sudo
-    zoxide
-    zsh-history-substring-search
-)
 
 # zoxide
 eval "$(zoxide init zsh)"
@@ -56,18 +56,18 @@ export HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='fg=green,bold'
 export HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='fg=red,bold'
 export HISTORY_SUBSTRING_SEARCH_GLOBBING_FLAGS='i'
 
+source ~/.zsh_functions
+
 # Custom Aliases
 
 # LSD Aliases
-alias ls='lsd --group-directories-first'
-alias la='lsd -a --group-directories-first'
-alias l='lsd -ll --group-directories-first'
+alias l='lsd -lt --group-directories-first'
+alias la='lsd --group-directories-first'
 alias lt='lsd --tree'
-alias lnew='lsd -ltr'
 alias ld='lsd -ld */'
+alias ls='lsd -lS'
+alias ltd='lsd --tree --depth=2'
 alias lmod='lsd -lt'
-alias lsize='lsd -lS'
-alias ldepth='lsd --tree --depth'
 
 # Git Aliases
 alias ad='git add .'
@@ -109,6 +109,7 @@ alias pro='cd ~/Projects'
 alias e='exit'
 alias v='nvim'
 alias cp='cp -iv'
+alias cls='clear'
 alias mv='mv -iv'
 alias rm='rm -iv'
 alias rmr='rm -Ir'
@@ -121,7 +122,7 @@ alias organize="source ~/scripts/scripts/venv/bin/activate && python ~/scripts/o
 alias syncdotfiles="cd ~/Public/dotfiles-manjaro && git pull && git add . && git diff --cached --quiet || git commit -m \"Sync $(date '+%Y-%m-%d %H:%M:%S')\" && git push && cd -"
 
 # Network Aliases
-alias ping='grc ping'
+alias ping='grc ping google.com'
 alias traceroute='grc traceroute'
 alias netstat='grc netstat'
 alias ip='grc ip'
@@ -150,38 +151,7 @@ esac
 #the Fuck
 eval $(thefuck --alias)
 
-# Functions
-
-# Yazi function
-function y() {
-    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-    yazi "$@" --cwd-file="$tmp"
-    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
-        builtin cd -- "$cwd"
-    fi
-    rm -f -- "$tmp" > /dev/null 2>&1  # Suprime el mensaje de eliminación
-}
-
-# fzf function
-
-f() {
-  fzf --preview '
-    case "{}" in
-      *.pdf) evince --preview {} ;;
-      *.jpg|*.png|*.jpeg|*.gif|*.raw|*.cr2|*.nef) gwenview --preview {} ;;
-      *) bat --style=numbers,changes --color=always {} || echo {} ;;
-    esac
-  ' --bind shift-up:preview-page-up,shift-down:preview-page-down \
-    --color=fg:#ffffff,bg:#1e1e1e,hl:#ffcc00,fg+:#000000,bg+:#ffffcc,hl+:#ff9900,info:#00ffff,pointer:#ff0000,marker:#00ff00,spinner:#ff00ff,header:#00ffcc | while read -r file; do
-    case "$file" in
-      *.md|*.docx|*.odt|*.txt|*.rtf|*.xlsx|*.ods) kate "$file" ;;
-      *.pdf) evince "$file" 2>/dev/null ;;
-      *.jpg|*.png|*.jpeg|*.gif|*.raw|*.cr2|*.nef) gwenview "$file" 2>/dev/null ;;
-      *.epub) foliate "$file" ;;
-      *) nvim "$file" ;;
-    esac
-  done
-}
+source ~/.zsh/functions.zsh 
 
 # Load zsh-syntax-highlighting and zsh-autosuggestions
 source /home/lean/Tools/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
@@ -190,5 +160,12 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#256182"
 
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
+
+
+export BROWSER=brave
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 #zprof

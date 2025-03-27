@@ -43,6 +43,5 @@ print_header "3. Actualizando aplicaciones Flatpak..."
 flatpak update -y && print_success "Flatpak actualizado" || echo -e "${RED}Error en actualización de Flatpak${NC}"
 
 
-
 # Finalización
 echo -e "\n${GREEN}${CHECK} ${CHECK} ${CHECK} Actualización completada ${CHECK} ${CHECK} ${CHECK}${NC}"
