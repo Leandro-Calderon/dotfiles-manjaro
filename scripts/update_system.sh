@@ -5,43 +5,63 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 CHECK="✅"
 GEAR="⚙️"
 PACKAGE="📦"
-FLATPAK="📦"
 AUR="🛠️"
+FLATPAK="📦"
 CLEAN="🧹"
-REBOOT="🔄"
 
-# Función para mostrar encabezados
+# Lista de paquetes a ignorar por yay
+IGNORE_PKGS=("ttf-maple-beta-nf-cn")
+
+# Función para encabezados
 print_header() {
     echo -e "\n${BLUE}${GEAR} $1 ${NC}"
 }
 
-# Función para mostrar éxito
+# Función para éxito
 print_success() {
     echo -e "${GREEN}${CHECK} $1 ${NC}"
 }
 
-# Inicio del script
+# Función para errores
+print_error() {
+    echo -e "${RED}✖ $1 ${NC}"
+}
+
+# Tiempo inicial
+START=$(date +%s)
+
+# Inicio
 clear
 echo -e "${BLUE}================================================"
 echo -e " ${PACKAGE} Actualización Completa del Sistema ${PACKAGE} "
 echo -e "================================================${NC}"
 
-# 1. Actualizar repositorios oficiales (pacman)
+# 1. Pacman
 print_header "1. Actualizando paquetes oficiales (pacman)..."
-sudo pacman -Syu --noconfirm && print_success "Pacman actualizado" || echo -e "${RED}Error en actualización de pacman${NC}"
+sudo pacman -Syu --noconfirm && print_success "Pacman actualizado" || print_error "Error en actualización de pacman"
 
-# 2. Actualizar paquetes AUR (yay)
+# 2. Yay (excluyendo paquetes ignorados)
 print_header "2. Actualizando paquetes AUR (yay)..."
-yay -Syu --noconfirm && print_success "AUR actualizado" || echo -e "${RED}Error en actualización de AUR${NC}"
+yay_ignore_args=()
+for pkg in "${IGNORE_PKGS[@]}"; do
+    yay_ignore_args+=("--ignore" "$pkg")
+done
+yay -Syu --noconfirm "${yay_ignore_args[@]}" && print_success "AUR actualizado" || print_error "Error en actualización de AUR"
 
-# 3. Actualizar Flatpak
+# 3. Flatpak
 print_header "3. Actualizando aplicaciones Flatpak..."
-flatpak update -y && print_success "Flatpak actualizado" || echo -e "${RED}Error en actualización de Flatpak${NC}"
+flatpak update -y && print_success "Flatpak actualizado" || print_error "Error en actualización de Flatpak"
 
+# 4. Limpieza (opcional)
+print_header "4. Limpiando paquetes huérfanos y caché..."
+yay -Yc --noconfirm && print_success "Paquetes huérfanos eliminados"
+sudo pacman -Sc --noconfirm > /dev/null && print_success "Caché limpiada"
 
-# Finalización
-echo -e "\n${GREEN}${CHECK} ${CHECK} ${CHECK} Actualización completada ${CHECK} ${CHECK} ${CHECK}${NC}"
+# Duración total
+END=$(date +%s)
+ELAPSED=$((END - START))
+print_success "Actualización completada en $ELAPSED segundos"
