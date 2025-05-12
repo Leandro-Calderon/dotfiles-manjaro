@@ -12,6 +12,16 @@ export VIMRUNTIME=/usr/share/nvim/runtime
 export ZSH="$HOME/.oh-my-zsh"
 export PATH="$PATH:/home/lean/Public/dotfiles-manjaro/scripts"
 
+# --------------------------------
+# PNPM Configuration
+# --------------------------------
+export PNPM_HOME="$HOME/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+
 # -------------------------------
 # Oh-My-Zsh Configuration
 # -------------------------------
@@ -25,13 +35,13 @@ CASE_SENSITIVE="true"
 HYPHEN_INSENSITIVE="true"
 
 plugins=(
+  history
   sudo
   zoxide
   zsh-syntax-highlighting
   zsh-autosuggestions
   zsh-history-substring-search
 )
-eval "$(zoxide init zsh)"
 
 # Source oh-my-zsh (debe ir después de configurar ZSH y el tema)
 source $ZSH/oh-my-zsh.sh
@@ -84,4 +94,5 @@ bindkey '^[[B' history-substring-search-down
 #[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

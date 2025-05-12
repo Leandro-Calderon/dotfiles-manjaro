@@ -7,7 +7,7 @@ dotfiles_repo=~/Public/dotfiles-manjaro
 # Archivos/directorios a respaldar
 config_files=(
     ".zshrc"
-    ".config/nvim/init.vim"
+    ".config/nvim"  # ← antes era init.vim, ahora toda la carpeta
     ".config/ghostty/config"
     ".config/fastfetch/config.jsonc"
 )
@@ -15,22 +15,25 @@ config_files=(
 # Crear directorio principal del repositorio
 mkdir -p "$dotfiles_repo"
 
-# Función para copiar/actualizar archivos
+# Función para copiar/actualizar archivos o carpetas
 sync_file() {
-    local source_file="$HOME/$1"
-    local target_file="$dotfiles_repo/$1"
+    local source="$HOME/$1"
+    local target="$dotfiles_repo/$1"
     
     # Verificar si el archivo/directorio fuente existe
-    if [ ! -e "$source_file" ]; then
-        echo "  ⚠️  No encontrado: $source_file"
+    if [ ! -e "$source" ]; then
+        echo "  ⚠️  No encontrado: $source"
         return 1
     fi
 
     # Crear directorio padre en el destino si no existe
-    mkdir -p "$(dirname "$target_file")"
+    mkdir -p "$(dirname "$target")"
 
-    # Copiar el archivo (forzando reemplazo para evitar enlaces simbólicos)
-    cp -v --remove-destination "$source_file" "$target_file"
+    # Eliminar destino anterior si existe (evita conflictos al copiar carpetas)
+    rm -rf "$target"
+
+    # Copiar archivo o carpeta
+    cp -vr "$source" "$target"
     echo "  ✅ Copiado/Actualizado: $1"
 }
 

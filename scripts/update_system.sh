@@ -56,11 +56,6 @@ yay -Syu --noconfirm "${yay_ignore_args[@]}" && print_success "AUR actualizado" 
 print_header "3. Actualizando aplicaciones Flatpak..."
 flatpak update -y && print_success "Flatpak actualizado" || print_error "Error en actualización de Flatpak"
 
-# 4. Limpieza (opcional)
-print_header "4. Limpiando paquetes huérfanos y caché..."
-yay -Yc --noconfirm && print_success "Paquetes huérfanos eliminados"
-sudo pacman -Sc --noconfirm > /dev/null && print_success "Caché limpiada"
-
 # Duración total
 END=$(date +%s)
 ELAPSED=$((END - START))

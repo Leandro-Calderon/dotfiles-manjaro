@@ -3,17 +3,15 @@ shell-integration = zsh
 shell-integration-features = sudo,cursor,title
 
 # Theme and Appearance
-theme = CyberpunkScarletProtocol
-background = 282c34
-foreground = ffffff
-background-opacity = 0.96
-split-divider-color = #66cccc
+theme = Abernathy
+background-opacity = 0.95
 window-theme = system
 
 # Font Settings
+
 font-family = "MesloLGS"
 font-feature = -liga
-font-size = 12
+font-size = 13
 
 # Window and Layout
 window-padding-x = 4,0
